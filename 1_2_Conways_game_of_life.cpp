@@ -864,17 +864,17 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 
 	int neighbours[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
 
-	//-------DELETE AFTER DEBUG-----------------
-	char* brd_str = "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------w---------------------------w-w---------------------------ww-------------------------w--w-------------------------w----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 	bool print_details = false;
-	Board brd_from_log;
-	strToBoard(brd_str,brd_from_log);
-	if(false){
-	//if(new_h != NULL && !boardDiff(*board,brd_from_log)){
-		print_details = true;
-		//fprintf(stlog,"\n\nboard from log: \n\n");
-		//printBoard(brd_from_log,stlog);
-	}
+	//-------DELETE AFTER DEBUG-----------------
+	//char* brd_str = "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------w---------------------------w-w---------------------------ww-------------------------w--w-------------------------w----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
+	//Board brd_from_log;
+	//strToBoard(brd_str,brd_from_log);
+	//if(false){
+	////if(new_h != NULL && !boardDiff(*board,brd_from_log)){
+	//	print_details = true;
+	//	//fprintf(stlog,"\n\nboard from log: \n\n");
+	//	//printBoard(brd_from_log,stlog);
+	//}
 	//------------------------------------------
 
 	// simulation
@@ -960,28 +960,6 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			fprintf(stlog,"\n\nHistory:\n\n");
 			printBoard(board_hist,stlog);
 		}
-
-		//// count neighbours of cells
-		//int tmp_neigh_cnt[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		//memset(tmp_neigh_cnt,0,sizeof(tmp_neigh_cnt));
-		//for(int i=0; i<cells_to_process_num; i++){
-		//	row = cells_to_process[i][0];
-		//	col = cells_to_process[i][1];
-		//	Cell cell;
-
-		//	for(int n=0; n<8; ++n){
-		//		n_row = row + neighbours[n][0];
-		//		n_col = col + neighbours[n][1];
-		//		cell = (*board)[n_row][n_col];
-		//		if(cell == player_1){
-		//			tmp_neigh_cnt[row][col][0]++; 
-		//		}
-		//		else if(cell == player_2){
-		//			tmp_neigh_cnt[row][col][1]++;
-		//		}
-		//	}
-		//}
-		//memcpy(neighbours_count,tmp_neigh_cnt,sizeof(neighbours_count));
 
 		// update cells
 		changed_cells_num = 0;
@@ -1322,10 +1300,6 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			}
 			break;
 		}
-	}
-
-	if(new_h != NULL && count_player_cells(new_h->origin,player) > 10){
-		//printHistory(new_h,true);
 	}
 
 	// simulation ended, return score
