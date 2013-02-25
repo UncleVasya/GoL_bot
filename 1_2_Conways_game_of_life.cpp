@@ -907,31 +907,31 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			}
 		}
 
-		//if(turn == 0){
-		//	memcpy(neigh_count_hist,prev_h->neigh_origin,sizeof(neigh_count_hist));
-		//	memcpy(neighbours_count,prev_h->neigh_origin,sizeof(neighbours_count));
-		//	// calculate initial neighbours count
-		//	for(int i=0; i<changed_cells_num; ++i){
-		//		row = changed_cells[i][0];
-		//		col = changed_cells[i][1];
-		//		Cell cell = changes[i][1];
-		//		int n_row, n_col;
-		//		for(int n=0; n<8; ++n){
-		//			n_row = row + neighbours[n][0];
-		//			n_col = col + neighbours[n][1];
-		//			if(cell == dead){
-		//				Cell prev_owner = changes[i][0];
-		//				--neighbours_count[n_row][n_col][prev_owner];
-		//			}
-		//			else{
-		//				++neighbours_count[n_row][n_col][cell];
-		//			}
-		//		}
-		//	}
-		//	if(new_h != NULL){
-		//		memcpy(new_h->neigh_origin,neighbours_count,sizeof(neighbours_count));
-		//	}
-		//}
+		if(turn == 0){
+			memcpy(neigh_count_hist,prev_h->neigh_origin,sizeof(neigh_count_hist));
+			memcpy(neighbours_count,prev_h->neigh_origin,sizeof(neighbours_count));
+			// calculate initial neighbours count
+			for(int i=0; i<changed_cells_num; ++i){
+				row = changed_cells[i][0];
+				col = changed_cells[i][1];
+				Cell cell = changes[i][1];
+				int n_row, n_col;
+				for(int n=0; n<8; ++n){
+					n_row = row + neighbours[n][0];
+					n_col = col + neighbours[n][1];
+					if(cell == dead){
+						Cell prev_owner = changes[i][0];
+						--neighbours_count[n_row][n_col][prev_owner];
+					}
+					else{
+						++neighbours_count[n_row][n_col][cell];
+					}
+				}
+			}
+			if(new_h != NULL){
+				memcpy(new_h->neigh_origin,neighbours_count,sizeof(neighbours_count));
+			}
+		}
 
 		if(print_details){
 			fprintf(stlog,"\n\n--------------------------------------------");
@@ -961,27 +961,27 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			printBoard(board_hist,stlog);
 		}
 
-		// count neighbours of cells
-		int tmp_neigh_cnt[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		memset(tmp_neigh_cnt,0,sizeof(tmp_neigh_cnt));
-		for(int i=0; i<cells_to_process_num; i++){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			Cell cell;
+		//// count neighbours of cells
+		//int tmp_neigh_cnt[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
+		//memset(tmp_neigh_cnt,0,sizeof(tmp_neigh_cnt));
+		//for(int i=0; i<cells_to_process_num; i++){
+		//	row = cells_to_process[i][0];
+		//	col = cells_to_process[i][1];
+		//	Cell cell;
 
-			for(int n=0; n<8; ++n){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				cell = (*board)[n_row][n_col];
-				if(cell == player_1){
-					tmp_neigh_cnt[row][col][0]++; 
-				}
-				else if(cell == player_2){
-					tmp_neigh_cnt[row][col][1]++;
-				}
-			}
-		}
-		memcpy(neighbours_count,tmp_neigh_cnt,sizeof(neighbours_count));
+		//	for(int n=0; n<8; ++n){
+		//		n_row = row + neighbours[n][0];
+		//		n_col = col + neighbours[n][1];
+		//		cell = (*board)[n_row][n_col];
+		//		if(cell == player_1){
+		//			tmp_neigh_cnt[row][col][0]++; 
+		//		}
+		//		else if(cell == player_2){
+		//			tmp_neigh_cnt[row][col][1]++;
+		//		}
+		//	}
+		//}
+		//memcpy(neighbours_count,tmp_neigh_cnt,sizeof(neighbours_count));
 
 		// update cells
 		changed_cells_num = 0;
@@ -1030,10 +1030,10 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 				new_h->changes[turn][total_changes_num] = cell;
 				++total_changes_num;
 
-				/*ch_cells[ch_cells_num][0] = row;
+				ch_cells[ch_cells_num][0] = row;
 				ch_cells[ch_cells_num][1] = col;
 				cell_changed[row][col] = true;
-				++ch_cells_num;*/
+				++ch_cells_num;
 			}
 			(*board)[row][col] = cell;
 		}
@@ -1082,14 +1082,14 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			printBrdAndNeighCnt(*board,neighbours_count,player,stlog);
 		}
 
-		//// retrieve neigh changes from history
-		//for(int i=0; i<prev_h->neigh_changes_num[turn]; ++i){
-		//	row = prev_h->neigh_changes_coords[turn][i][0];
-		//	col = prev_h->neigh_changes_coords[turn][i][1];
-		//	int player_num = prev_h->neigh_changes[turn][i][0];
-		//	int neigh_cnt = prev_h->neigh_changes[turn][i][1];
-		//	neigh_count_hist[row][col][player_num] = neigh_cnt;
-		//}
+		// retrieve neigh changes from history
+		for(int i=0; i<prev_h->neigh_changes_num[turn]; ++i){
+			row = prev_h->neigh_changes_coords[turn][i][0];
+			col = prev_h->neigh_changes_coords[turn][i][1];
+			int player_num = prev_h->neigh_changes[turn][i][0];
+			int neigh_cnt = prev_h->neigh_changes[turn][i][1];
+			neigh_count_hist[row][col][player_num] = neigh_cnt;
+		}
 
 		if(print_details){
 			fprintf(stlog,"2. prev_h->neigh_changes_num: %d \n\n",prev_h->neigh_changes_num[turn]);
@@ -1100,8 +1100,8 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			printBrdAndNeighCnt(*board,neighbours_count,player,stlog);
 		}
 
-		// copy neigh count for needed cells from history
-		//memcpy(neighbours_count,neigh_count_hist,sizeof(neigh_count_hist));
+		//copy neigh count for needed cells from history
+		memcpy(neighbours_count,neigh_count_hist,sizeof(neigh_count_hist));
 		/*for(int i=0; i<cells_to_process_num; ++i){
 			row = cells_to_process[i][0];
 			col = cells_to_process[i][1];
@@ -1109,176 +1109,176 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			neighbours_count[row][col][1] = neigh_count_hist[row][col][1];
 		}*/
 
-		//// calculate neigh changes
-		//for(int i=0; i<changed_cells_num; ++i){
-		//	row = changed_cells[i][0];
-		//	col = changed_cells[i][1];
-		//	Cell cell = changes[i][1];
-		//	int n_row, n_col;
-		//	for(int n=0; n<8; ++n){
-		//		n_row = row + neighbours[n][0];
-		//		n_col = col + neighbours[n][1];
-		//		if(cell == dead){
-		//			Cell prev_owner = changes[i][0];
-		//			--neighbours_count[n_row][n_col][prev_owner];
-		//		}
-		//		else{
-		//			++neighbours_count[n_row][n_col][cell];
-		//		}
-		//	}
-		//}
+		// calculate neigh changes
+		for(int i=0; i<changed_cells_num; ++i){
+			row = changed_cells[i][0];
+			col = changed_cells[i][1];
+			Cell cell = changes[i][1];
+			int n_row, n_col;
+			for(int n=0; n<8; ++n){
+				n_row = row + neighbours[n][0];
+				n_col = col + neighbours[n][1];
+				if(cell == dead){
+					Cell prev_owner = changes[i][0];
+					--neighbours_count[n_row][n_col][prev_owner];
+				}
+				else{
+					++neighbours_count[n_row][n_col][cell];
+				}
+			}
+		}
 
 		if(print_details){
 			fprintf(stlog,"\n\nNeigh count after calculating:\n\n");
 			printBrdAndNeighCnt(*board,neighbours_count,player,stlog);
 		}
 
-		//int prev_ctp_num = cells_to_process_num;
-		//Coords prev_ctp;
-		//memcpy(prev_ctp,cells_to_process,sizeof(prev_ctp));
+		int prev_ctp_num = cells_to_process_num;
+		Coords prev_ctp;
+		memcpy(prev_ctp,cells_to_process,sizeof(prev_ctp));
 
-		//// pick cells that need processing
-		//cells_to_process_num = 0;
-		//memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-		//for(int i=0; i<changed_cells_num; i++){
-		//	row = changed_cells[i][0];
-		//	col = changed_cells[i][1];
+		// pick cells that need processing
+		cells_to_process_num = 0;
+		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		for(int i=0; i<changed_cells_num; i++){
+			row = changed_cells[i][0];
+			col = changed_cells[i][1];
 
-		//	if(!cell_added[row][col]){
-		//		cells_to_process[cells_to_process_num][0] = row;
-		//		cells_to_process[cells_to_process_num][1] = col;
-		//		cells_to_process_num++;
-		//		cell_added[row][col] = true;
-		//	}
-		//	
-		//	for(int n=0; n<8; ++n){
-		//		n_row = row + neighbours[n][0];
-		//		n_col = col + neighbours[n][1];
-		//		if(!cell_added[n_row][n_col]){
-		//			cells_to_process[cells_to_process_num][0] = n_row;
-		//			cells_to_process[cells_to_process_num][1] = n_col;
-		//			cells_to_process_num++;
-		//			cell_added[n_row][n_col] = true;
-		//		}
-		//	}
-		//}
+			if(!cell_added[row][col]){
+				cells_to_process[cells_to_process_num][0] = row;
+				cells_to_process[cells_to_process_num][1] = col;
+				cells_to_process_num++;
+				cell_added[row][col] = true;
+			}
+			
+			for(int n=0; n<8; ++n){
+				n_row = row + neighbours[n][0];
+				n_col = col + neighbours[n][1];
+				if(!cell_added[n_row][n_col]){
+					cells_to_process[cells_to_process_num][0] = n_row;
+					cells_to_process[cells_to_process_num][1] = n_col;
+					cells_to_process_num++;
+					cell_added[n_row][n_col] = true;
+				}
+			}
+		}
 
-		//// fill neigh changes into new history
-		//if(new_h != NULL){
-		//	int neigh_changes_num = 0;
-		//	int added_num = 0;
-		//	// add neighs of ch_cells to the ch_cells queue
-		//	for(int i=0; i<ch_cells_num; ++i){
-		//		row = ch_cells[i][0];
-		//		col = ch_cells[i][1];
-		//		for(int n=0; n<8; ++n){
-		//			n_row = row + neighbours[n][0];
-		//			n_col = col + neighbours[n][1];
-		//			if(!cell_changed[n_row][n_col] && !cell_added[n_row][n_col]){
-		//				ch_cells[ch_cells_num+added_num][0] = n_row;
-		//				ch_cells[ch_cells_num+added_num][1] = n_col;
-		//				cell_changed[n_row][n_col] = true;
-		//				++added_num;
-		//			}
-		//		}
-		//	}
-		//	ch_cells_num += added_num;
-		//	// process full ch_cells queue
-		//	for(int i=0; i<ch_cells_num; ++i){
-		//		row = ch_cells[i][0];
-		//		col = ch_cells[i][1];
-		//			
-		//		int p1_neigh_cnt = neighbours_count[row][col][0];
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//		new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
-		//		new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
-		//		++neigh_changes_num;
-		//			
-		//		int p2_neigh_cnt = neighbours_count[row][col][1];
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//		new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
-		//		new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
-		//		++neigh_changes_num;
-		//	}
+		// fill neigh changes into new history
+		if(new_h != NULL){
+			int neigh_changes_num = 0;
+			int added_num = 0;
+			// add neighs of ch_cells to the ch_cells queue
+			for(int i=0; i<ch_cells_num; ++i){
+				row = ch_cells[i][0];
+				col = ch_cells[i][1];
+				for(int n=0; n<8; ++n){
+					n_row = row + neighbours[n][0];
+					n_col = col + neighbours[n][1];
+					if(!cell_changed[n_row][n_col] && !cell_added[n_row][n_col]){
+						ch_cells[ch_cells_num+added_num][0] = n_row;
+						ch_cells[ch_cells_num+added_num][1] = n_col;
+						cell_changed[n_row][n_col] = true;
+						++added_num;
+					}
+				}
+			}
+			ch_cells_num += added_num;
+			// process full ch_cells queue
+			for(int i=0; i<ch_cells_num; ++i){
+				row = ch_cells[i][0];
+				col = ch_cells[i][1];
+					
+				int p1_neigh_cnt = neighbours_count[row][col][0];
+				new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+				new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+				new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
+				new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
+				++neigh_changes_num;
+					
+				int p2_neigh_cnt = neighbours_count[row][col][1];
+				new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+				new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+				new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
+				new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
+				++neigh_changes_num;
+			}
 
-		//	if(print_details){
-		//		fprintf(stlog,"\n\n3. neigh_changes_num: %d \n\n",neigh_changes_num);
-		//		printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
-		//	}
+			if(print_details){
+				fprintf(stlog,"\n\n3. neigh_changes_num: %d \n\n",neigh_changes_num);
+				printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
+			}
 
-		//	// copy from history changes of unaffected cells
-		//	for(int i=0; i<prev_h->neigh_changes_num[turn]; ++i){
-		//		row = prev_h->neigh_changes_coords[turn][i][0];
-		//		col = prev_h->neigh_changes_coords[turn][i][1];
-		//		if(!cell_added[row][col] && !cell_changed[row][col]){
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//			new_h->neigh_changes[turn][neigh_changes_num][0] = prev_h->neigh_changes[turn][i][0];
-		//			new_h->neigh_changes[turn][neigh_changes_num][1] = prev_h->neigh_changes[turn][i][1];
-		//			++neigh_changes_num;
-		//		}
-		//	}
+			// copy from history changes of unaffected cells
+			for(int i=0; i<prev_h->neigh_changes_num[turn]; ++i){
+				row = prev_h->neigh_changes_coords[turn][i][0];
+				col = prev_h->neigh_changes_coords[turn][i][1];
+				if(!cell_added[row][col] && !cell_changed[row][col]){
+					new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+					new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+					new_h->neigh_changes[turn][neigh_changes_num][0] = prev_h->neigh_changes[turn][i][0];
+					new_h->neigh_changes[turn][neigh_changes_num][1] = prev_h->neigh_changes[turn][i][1];
+					++neigh_changes_num;
+				}
+			}
 
-		//	if(print_details){
-		//		fprintf(stlog,"\n\n4. neigh_changes_num: %d \n\n",neigh_changes_num);
-		//		printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
-		//	}
+			if(print_details){
+				fprintf(stlog,"\n\n4. neigh_changes_num: %d \n\n",neigh_changes_num);
+				printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
+			}
 
-		//	for(int i=0; i<cells_to_process_num; ++i){
-		//		row = cells_to_process[i][0];
-		//		col = cells_to_process[i][1];
+			for(int i=0; i<cells_to_process_num; ++i){
+				row = cells_to_process[i][0];
+				col = cells_to_process[i][1];
 
-		//		if(cell_changed[row][col]){
-		//			continue;
-		//		}
-		//		
-		//		int p1_neigh_cnt = neighbours_count[row][col][0];
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//		new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
-		//		new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
-		//		++neigh_changes_num;
-		//			
-		//		int p2_neigh_cnt = neighbours_count[row][col][1];
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//		new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//		new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
-		//		new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
-		//		++neigh_changes_num;
-		//	}
+				if(cell_changed[row][col]){
+					continue;
+				}
+				
+				int p1_neigh_cnt = neighbours_count[row][col][0];
+				new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+				new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+				new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
+				new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
+				++neigh_changes_num;
+					
+				int p2_neigh_cnt = neighbours_count[row][col][1];
+				new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+				new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+				new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
+				new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
+				++neigh_changes_num;
+			}
 
-		//	if(print_details){
-		//		fprintf(stlog,"\n\n5. neigh_changes_num: %d \n\n",neigh_changes_num);
-		//		printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
-		//	}
+			if(print_details){
+				fprintf(stlog,"\n\n5. neigh_changes_num: %d \n\n",neigh_changes_num);
+				printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
+			}
 
-		//	for(int i=0; i<prev_ctp_num; ++i){
-		//		row = prev_ctp[i][0];
-		//		col = prev_ctp[i][1];
-		//		if(!cell_added[row][col] && !cell_changed[row][col]){
-		//			int p1_neigh_cnt = neighbours_count[row][col][0];
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//			new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
-		//			new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
-		//			++neigh_changes_num;
-		//			
-		//			int p2_neigh_cnt = neighbours_count[row][col][1];
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
-		//			new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
-		//			new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
-		//			new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
-		//			++neigh_changes_num;
-		//		}
-		//	}
-		//	if(print_details){
-		//		fprintf(stlog,"\n\n6. neigh_changes_num: %d \n\n",neigh_changes_num);
-		//		printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
-		//	}
-		//	new_h->neigh_changes_num[turn] = neigh_changes_num;
-		//}
+			for(int i=0; i<prev_ctp_num; ++i){
+				row = prev_ctp[i][0];
+				col = prev_ctp[i][1];
+				if(!cell_added[row][col] && !cell_changed[row][col]){
+					int p1_neigh_cnt = neighbours_count[row][col][0];
+					new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+					new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+					new_h->neigh_changes[turn][neigh_changes_num][0] = player_1;
+					new_h->neigh_changes[turn][neigh_changes_num][1] = p1_neigh_cnt;
+					++neigh_changes_num;
+					
+					int p2_neigh_cnt = neighbours_count[row][col][1];
+					new_h->neigh_changes_coords[turn][neigh_changes_num][0] = row;
+					new_h->neigh_changes_coords[turn][neigh_changes_num][1] = col;
+					new_h->neigh_changes[turn][neigh_changes_num][0] = player_2;
+					new_h->neigh_changes[turn][neigh_changes_num][1] = p2_neigh_cnt;
+					++neigh_changes_num;
+				}
+			}
+			if(print_details){
+				fprintf(stlog,"\n\n6. neigh_changes_num: %d \n\n",neigh_changes_num);
+				printCoords(new_h->neigh_changes_coords[turn],neigh_changes_num,stlog);
+			}
+			new_h->neigh_changes_num[turn] = neigh_changes_num;
+		}
 
 		if(print_board){
 			clearScreen();
@@ -1307,7 +1307,7 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 					new_h->changes_num[t] = prev_h->changes_num[t];
 				}
 				// neigh count
-				/*if(new_h != NULL){
+				if(new_h != NULL){
 					for(int i=0; i<prev_h->neigh_changes_num[t]; ++i){
 						new_h->neigh_changes_coords[t][i][0] = prev_h->neigh_changes_coords[t][i][0];
 						new_h->neigh_changes_coords[t][i][1] = prev_h->neigh_changes_coords[t][i][1];
@@ -1315,7 +1315,7 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 						new_h->neigh_changes[t][i][1] = prev_h->neigh_changes[t][i][1];
 					}
 					new_h->neigh_changes_num[t] = prev_h->neigh_changes_num[t];
-				}*/
+				}
 			}
 			if(new_h != NULL){
 				new_h->turns = prev_h->turns;
