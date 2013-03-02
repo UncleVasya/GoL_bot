@@ -14,10 +14,10 @@
     }
 #else
     #include <unistd.h>
-    void sleep(unsigned milliseconds)
-    {
-        usleep(milliseconds * 1000); // takes microseconds
-    }
+    //void sleep(unsigned milliseconds)
+    //{
+    //    usleep(milliseconds * 1000); // takes microseconds
+    //}
 #endif
 
 //#define DEBUG_MODE
@@ -54,7 +54,7 @@ typedef struct{
 	Cell changes[TURNS_NUM][BOARD_FULL_SIZE];
 
 	int neigh_origin[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-	int neigh_changes_num[TURNS_NUM+5]; // delete +5 after debug
+	int neigh_changes_num[TURNS_NUM];
 	// *PLAYERS_NUM is because I separate changes for p1 and p2: 
 	// if one cell have both its p1 and p2 neigh count changed there are two changes, not one
 	int neigh_changes_coords[TURNS_NUM][BOARD_FULL_SIZE*PLAYERS_NUM][2];
@@ -362,7 +362,8 @@ void printHistory(Tl* h, FILE* stream, bool debug = false){
 		getBoardFromHist(h,turn,board);
 		getNeighFromHist(h,turn,neigh_count);
 		fprintf(stream, "turn: %d   score: %d", turn, count_player_cells(board,player));
-		printBrdAndNeighCnt(board,neigh_count,player,stream);
+		//printBrdAndNeighCnt(board,neigh_count,player,stream);
+		printBoard(board,stream);
 	}
 }
 
@@ -852,33 +853,32 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 	// simulation
 	++simulations_done;
 	for(int turn=0; turn<turns; turn++){
-		cells_to_process_num = 0;
-		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		if(turn == 0){
+			cells_to_process_num = 0;
+			memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+			// pick cells that need processing
+			for(int i=0; i<changed_cells_num; i++){
+				row = changed_cells[i][0];
+				col = changed_cells[i][1];
 
-		// pick cells that need processing
-		for(int i=0; i<changed_cells_num; i++){
-			row = changed_cells[i][0];
-			col = changed_cells[i][1];
-
-			if(!cell_added[row][col]){
-				cells_to_process[cells_to_process_num][0] = row;
-				cells_to_process[cells_to_process_num][1] = col;
-				cells_to_process_num++;
-				cell_added[row][col] = true;
-			}
-			
-			for(int n=0; n<8; ++n){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				if(!cell_added[n_row][n_col]){
-					cells_to_process[cells_to_process_num][0] = n_row;
-					cells_to_process[cells_to_process_num][1] = n_col;
+				if(!cell_added[row][col]){
+					cells_to_process[cells_to_process_num][0] = row;
+					cells_to_process[cells_to_process_num][1] = col;
 					cells_to_process_num++;
-					cell_added[n_row][n_col] = true;
+					cell_added[row][col] = true;
+				}
+			
+				for(int n=0; n<8; ++n){
+					n_row = row + neighbours[n][0];
+					n_col = col + neighbours[n][1];
+					if(!cell_added[n_row][n_col]){
+						cells_to_process[cells_to_process_num][0] = n_row;
+						cells_to_process[cells_to_process_num][1] = n_col;
+						cells_to_process_num++;
+						cell_added[n_row][n_col] = true;
+					}
 				}
 			}
-		}
-
 		// retrieving cell changes from history
 		for(int i=0; i < prev_h->changes_num[turn]; ++i){
 			row = prev_h->changes_coords[turn][i][0];
@@ -985,28 +985,24 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 
 		// we came to the same position in history
 		if(changed_cells_num == 0){
+			// copy rest of the old history to the new history
+			if(new_h != NULL){
+				for(int t=turn+1; t<TURNS_NUM; ++t){
+					// cells
+					memcpy(new_h->changes[t],prev_h->changes[t],sizeof(Cell)*2*prev_h->changes_num[t]);
+					memcpy(new_h->changes_coords[t],prev_h->changes_coords[t],sizeof(int)*2*prev_h->changes_num[t]);
+					
+				}
+				memcpy(&(new_h->changes_num[turn+1]),&(prev_h->changes_num[turn+1]),sizeof(int)*(TURNS_NUM-turn-1));
+				new_h->turns = prev_h->turns;
+
+			}
 			// get last board from history and break simulation
-			// also copy old history data to the new history
-			// HINT: use memcpy here
 			for(int t=turn+1; t<TURNS_NUM; ++t){
-				// cells
 				for(int i=0; i<prev_h->changes_num[t]; ++i){
 					row = prev_h->changes_coords[t][i][0];
 					col = prev_h->changes_coords[t][i][1];
 					(*board)[row][col] = prev_h->changes[t][i];
-
-					if(new_h != NULL){
-						new_h->changes[t][i] = prev_h->changes[t][i];
-						new_h->changes_coords[t][i][0] = row;
-						new_h->changes_coords[t][i][1] = col;
-					}
-				}
-				if(new_h != NULL){
-					new_h->changes_num[t] = prev_h->changes_num[t];
-				}
-			}
-			if(new_h != NULL){
-				new_h->turns = prev_h->turns;
 			}
 			break;
 		}
