@@ -887,8 +887,7 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 		}
 
 		// count neighbours of cells
-		int tmp_neigh_cnt[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		memset(tmp_neigh_cnt,0,sizeof(tmp_neigh_cnt));
+		memset(neighbours_count,0,sizeof(neighbours_count));
 		for(int i=0; i<cells_to_process_num; i++){
 			row = cells_to_process[i][0];
 			col = cells_to_process[i][1];
@@ -899,14 +898,13 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 				n_col = col + neighbours[n][1];
 				cell = (*board)[n_row][n_col];
 				if(cell == player_1){
-					tmp_neigh_cnt[row][col][0]++; 
+					neighbours_count[row][col][player_1]++; 
 				}
 				else if(cell == player_2){
-					tmp_neigh_cnt[row][col][1]++;
+					neighbours_count[row][col][player_2]++;
 				}
 			}
 		}
-		memcpy(neighbours_count,tmp_neigh_cnt,sizeof(neighbours_count));
 
 		// update cells
 		changed_cells_num = 0;
