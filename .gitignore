@@ -1,0 +1,8 @@
+*vcxproj*
+*log*
+*.txt
+Debug/1_2_Conway_game_of_life.exe.intermediate.manifest
+Debug/1_2_Conway_game_of_life.lastbuildstate
+Debug/1_2_Conways_game_of_life.obj
+Debug/vc100.idb
+Debug/vc100.pdb
