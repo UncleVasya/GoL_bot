@@ -829,6 +829,10 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 		}
 	}
 
+	Coords alive_cells;
+	bool cell_alive[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
+	int alive_cells_num;
+	
 	Coords changed_cells;
 	Cell changes[BOARD_FULL_SIZE*2][2]; // [0] - was; [1] - became
 	int changed_cells_num;
@@ -856,6 +860,7 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 		// pick cells that need processing
 		cells_to_process_num = 0;
 		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		// changed cells + level 1 neighbours
 		for(int i=0; i<changed_cells_num; i++){
 			row = changed_cells[i][0];
 			col = changed_cells[i][1];
@@ -878,7 +883,36 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 				}
 			}
 		}
-		
+		// level 2 neighbours
+		int added_num = 0;
+		for(int i=0; i<cells_to_process_num; ++i){
+			row = cells_to_process[i][0];
+			col = cells_to_process[i][1];
+			for(int n=0; n<8; ++n){
+				n_row = row + neighbours[n][0];
+				n_col = col + neighbours[n][1];
+				if(!cell_added[n_row][n_col]){
+					cells_to_process[cells_to_process_num+added_num][0] = n_row;
+					cells_to_process[cells_to_process_num+added_num][1] = n_col;
+					++added_num;
+					cell_added[n_row][n_col] = true;
+				}
+			}
+		}
+		cells_to_process_num += added_num;
+
+		alive_cells_num = 0;
+		for(int i=0; i<cells_to_process_num; ++i){
+			row = cells_to_process[i][0];
+			col = cells_to_process[i][1];
+			Cell cell = (*board)[row][col];
+			if(cell != dead){
+				alive_cells[alive_cells_num][0] = row;
+				alive_cells[alive_cells_num][1] = col;
+				++alive_cells_num;
+			}
+		}
+
 		// retrieving cell changes from history
 		for(int i=0; i < prev_h->changes_num[turn]; ++i){
 			row = prev_h->changes_coords[turn][i][0];
@@ -887,26 +921,27 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 		}
 
 		// count neighbours of cells
-		int tmp_neigh_cnt[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		memset(tmp_neigh_cnt,0,sizeof(tmp_neigh_cnt));
-		for(int i=0; i<cells_to_process_num; i++){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			Cell cell;
-
-			for(int n=0; n<8; ++n){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				cell = (*board)[n_row][n_col];
-				if(cell == player_1){
-					tmp_neigh_cnt[row][col][0]++; 
-				}
-				else if(cell == player_2){
-					tmp_neigh_cnt[row][col][1]++;
+		memset(neighbours_count,0,sizeof(neighbours_count));
+		for(int i=0; i<alive_cells_num; i++){
+			row = alive_cells[i][0];
+			col = alive_cells[i][1];
+			Cell cell = (*board)[row][col];
+			if(cell != dead){
+				// if cell's not dead update neigh cnt around it
+				for(int n=0; n<8; ++n){
+					n_row = row + neighbours[n][0];
+					n_col = col + neighbours[n][1];
+					++neighbours_count[n_row][n_col][cell]; 
 				}
 			}
 		}
-		memcpy(neighbours_count,tmp_neigh_cnt,sizeof(neighbours_count));
+		// clean up. removing 2-lvl neighs from processing queue
+		for(int i = cells_to_process_num-1; i >= cells_to_process_num-added_num; --i){
+			row = cells_to_process[i][0];
+			col = cells_to_process[i][1];
+			cell_added[row][col] = false;
+		}
+		cells_to_process_num -= added_num;
 
 		// update cells
 		changed_cells_num = 0;
