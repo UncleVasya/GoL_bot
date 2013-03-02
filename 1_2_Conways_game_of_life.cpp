@@ -853,32 +853,32 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 	// simulation
 	++simulations_done;
 	for(int turn=0; turn<turns; turn++){
-		if(turn == 0){
-			cells_to_process_num = 0;
-			memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-			// pick cells that need processing
-			for(int i=0; i<changed_cells_num; i++){
-				row = changed_cells[i][0];
-				col = changed_cells[i][1];
+		// pick cells that need processing
+		cells_to_process_num = 0;
+		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		for(int i=0; i<changed_cells_num; i++){
+			row = changed_cells[i][0];
+			col = changed_cells[i][1];
 
-				if(!cell_added[row][col]){
-					cells_to_process[cells_to_process_num][0] = row;
-					cells_to_process[cells_to_process_num][1] = col;
-					cells_to_process_num++;
-					cell_added[row][col] = true;
-				}
+			if(!cell_added[row][col]){
+				cells_to_process[cells_to_process_num][0] = row;
+				cells_to_process[cells_to_process_num][1] = col;
+				cells_to_process_num++;
+				cell_added[row][col] = true;
+			}
 			
-				for(int n=0; n<8; ++n){
-					n_row = row + neighbours[n][0];
-					n_col = col + neighbours[n][1];
-					if(!cell_added[n_row][n_col]){
-						cells_to_process[cells_to_process_num][0] = n_row;
-						cells_to_process[cells_to_process_num][1] = n_col;
-						cells_to_process_num++;
-						cell_added[n_row][n_col] = true;
-					}
+			for(int n=0; n<8; ++n){
+				n_row = row + neighbours[n][0];
+				n_col = col + neighbours[n][1];
+				if(!cell_added[n_row][n_col]){
+					cells_to_process[cells_to_process_num][0] = n_row;
+					cells_to_process[cells_to_process_num][1] = n_col;
+					cells_to_process_num++;
+					cell_added[n_row][n_col] = true;
 				}
 			}
+		}
+		
 		// retrieving cell changes from history
 		for(int i=0; i < prev_h->changes_num[turn]; ++i){
 			row = prev_h->changes_coords[turn][i][0];
@@ -1003,11 +1003,11 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 					row = prev_h->changes_coords[t][i][0];
 					col = prev_h->changes_coords[t][i][1];
 					(*board)[row][col] = prev_h->changes[t][i];
+				}
 			}
 			break;
 		}
 	}
-
 	// simulation ended, return score
 	// TODO: optimize. instead of calling function make counters above.
 	int score = count_player_cells(*board,player) - count_player_cells(*board,enemy(player));
