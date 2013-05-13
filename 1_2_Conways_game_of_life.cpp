@@ -63,10 +63,12 @@ typedef struct{
 } Tl;
 
 Board empty_board; // must be slow to generate a new one every time we need it
+bool cell_added_init[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
+
 Cell player;
 
 long simulations_done = 0;
-long max_simulations = 10000;
+long max_simulations = 100000;
 
 void clearScreen(){
 	system("cls");
@@ -372,17 +374,9 @@ void printHistory(Tl* h, FILE* stream, bool debug = false){
 // returns total cells num (input cells + neighbours)
 int addNeighboursCoords(Coords *cells, int cells_num, Coords *new_list = NULL){
 	int neighbours[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
-
+	
 	bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
-	bool cell_added_init[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
-	// cells out of board must be true so I don't add them to the queue
-	memset(cell_added_init,true,sizeof(bool)*BOARD_FULL_SIZE);
-	for(int i=1; i<=BOARD_HEIGHT; i++){
-		for(int k=1; k<=BOARD_WIDTH;k++){
-			cell_added_init[i][k] = false;
-		}
-	}
-
+	
 	int new_list_size = 0;
 	int row=0, col=0, n_row=0, n_col=0;
 	memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
@@ -410,6 +404,7 @@ int addNeighboursCoords(Coords *cells, int cells_num, Coords *new_list = NULL){
 	}
 	return new_list_size;
 }
+
 
 // this function does full simulation and fills history
 int Simulate(Board* board, Cell player, int turns, Tl* h){
@@ -752,7 +747,46 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 	++simulations_done;
 	for(int turn=0; turn<turns; turn++){
 		// pick cells that need processing
+		fprintf(stlog, "\nfunction: ");
 		cells_to_process_num = addNeighboursCoords(&changed_cells, changed_cells_num, &cells_to_process);
+		//printCoords(cells_to_process, cells_to_process_num, stlog);
+		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		for(int i=0; i<cells_to_process_num; ++i){
+			row = cells_to_process[i][0];
+			col = cells_to_process[i][1];
+			cell_added[row][col] = true;
+		}
+
+		//cells_to_process_num = 0;
+		//memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+		//// changed cells + level 1 neighbours
+		//for(int i=0; i<changed_cells_num; i++){
+		//	row = changed_cells[i][0];
+		//	col = changed_cells[i][1];
+
+		//	if(!cell_added[row][col]){
+		//		cells_to_process[cells_to_process_num][0] = row;
+		//		cells_to_process[cells_to_process_num][1] = col;
+		//		cells_to_process_num++;
+		//		cell_added[row][col] = true;
+		//	}
+		//	
+		//	for(int n=0; n<8; ++n){
+		//		n_row = row + neighbours[n][0];
+		//		n_col = col + neighbours[n][1];
+		//		if(!cell_added[n_row][n_col]){
+		//			cells_to_process[cells_to_process_num][0] = n_row;
+		//			cells_to_process[cells_to_process_num][1] = n_col;
+		//			cells_to_process_num++;
+		//			cell_added[n_row][n_col] = true;
+		//		}
+		//	}
+		//}
+
+		//fprintf(stlog, "\noriginal: ");
+		//printCoords(cells_to_process, cells_to_process_num, stlog);
+		//fprintf(stlog, "\n\n\n");
+		
 		// level 2 neighbours
 		int added_num = 0;
 		for(int i=0; i<cells_to_process_num; ++i){
@@ -1127,6 +1161,14 @@ int main(){
     int i,k;
     char c;
     Board board;
+
+	// cells out of board must be true so I don't add them to the queue
+	memset(cell_added_init,true,sizeof(bool)*BOARD_FULL_SIZE);
+	for(int i=1; i<=BOARD_HEIGHT; i++){
+		for(int k=1; k<=BOARD_WIDTH;k++){
+			cell_added_init[i][k] = false;
+		}
+	}
 
 	//----PRODUCTION CODE-----
 #ifndef DEBUG_MODE 
