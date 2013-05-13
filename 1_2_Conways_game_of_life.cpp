@@ -367,25 +367,14 @@ void printHistory(Tl* h, FILE* stream, bool debug = false){
 	}
 }
 
-//--- OLD VERSIONS OF SIMULATION CODE IS HERE TO TEST AGAINST NEW ONES----
-int Simulate_old(Board* board, Cell player, int turns, bool print_board){
-	int row,col, n_row, n_col; // for temp vals
-	Cell owner;
+// takes a list of cells coords and adds to it coords of all neighbours;
+// if new_list != NULL then creates a new list instead of changing original one;
+// returns total cells num (input cells + neighbours)
+int addNeighboursCoords(Coords *cells, int cells_num, Coords *new_list = NULL){
+	int neighbours[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
 
-	// TODO: you can transform neighbours_count into 1d-array like cells_to_process
-	// because you need this info only for cells you will process.
-	// OR YOU CAN  combine all the info into one array cells_to_process that will 
-	// contain row, col, neighbours count etc.
-	
-	// [][][0] - 1st player's neighbours; [][][1] - 2nd player's
-	int neighbours_count[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-	
-	// tracks if this cell was already added to the queue
 	bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
-	
-	// init empty cell_added array
 	bool cell_added_init[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
-	
 	// cells out of board must be true so I don't add them to the queue
 	memset(cell_added_init,true,sizeof(bool)*BOARD_FULL_SIZE);
 	for(int i=1; i<=BOARD_HEIGHT; i++){
@@ -394,128 +383,33 @@ int Simulate_old(Board* board, Cell player, int turns, bool print_board){
 		}
 	}
 
-	// Cells that can change their state on this turn (alive cells + neighbours)
-	int cells_to_process_num;
-	Coords cells_to_process;
+	int new_list_size = 0;
+	int row=0, col=0, n_row=0, n_col=0;
+	memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
+	for(int i=0; i<cells_num; i++){
+		row = (*cells)[i][0];
+		col = (*cells)[i][1];
 
-	Coords alive_cells;
-	// alive cells for this and previous steps
-	int alive_cells_num = getAliveCells(*board,alive_cells);
-	Coords prev_alive_cells = {{-1,-1}};
-	Coords cur_alive_cells;
-	memcpy(cur_alive_cells,alive_cells,sizeof(int)*BOARD_FULL_SIZE*2);
-
-	// alive cells num for each player
-	int player_alive_cells_num[PLAYERS_NUM] = {0,0};
-
-	if(print_board){
-			clearScreen();
-			printBoard(*board,stdout);
-			//char* s;
-			//scanf("%s",&s);
+		if(!cell_added[row][col]){
+			(*new_list)[new_list_size][0] = row;
+			(*new_list)[new_list_size][1] = col;
+			++new_list_size;
+			cell_added[row][col] = true;
 		}
-
-	int neighbours[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
-	
-	// simulation
-	for(int turn=0; turn < turns; turn++){
-		cells_to_process_num = 0;
-		memset(neighbours_count,0,sizeof(int)*BOARD_FULL_SIZE*PLAYERS_NUM);
-		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-
-		// updating neighbours info
-		for(int i=0; i<alive_cells_num; i++){
-			row = cur_alive_cells[i][0];
-			col = cur_alive_cells[i][1];
-			owner = (*board)[row][col];
 			
-			if(!cell_added[row][col]){
-				cells_to_process[cells_to_process_num][0] = row;
-				cells_to_process[cells_to_process_num][1] = col;
-				cells_to_process_num++;
-				cell_added[row][col] = true;
+		for(int n=0; n<8; ++n){
+			n_row = row + neighbours[n][0];
+			n_col = col + neighbours[n][1];
+			if(!cell_added[n_row][n_col]){
+				(*new_list)[new_list_size][0] = n_row;
+				(*new_list)[new_list_size][1] = n_col;
+				++new_list_size;
+				cell_added[n_row][n_col] = true;
 			}
-
-			for(int n=0; n<8; n++){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				neighbours_count[n_row][n_col][owner]++;
-				if(!cell_added[n_row][n_col]){
-					cells_to_process[cells_to_process_num][0] = n_row;
-					cells_to_process[cells_to_process_num][1] = n_col;
-					cells_to_process_num++;
-					cell_added[n_row][n_col] = true;
-				}
-			}
-		}
-
-		// updating cells of the new board
-		alive_cells_num = 0;
-		player_alive_cells_num[0] = 0;
-		player_alive_cells_num[1] = 0;
-		for(int i=0; i<cells_to_process_num;i++){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			// killing alive cells
-			if((*board)[row][col] != dead){
-				if(neighbours_count[row][col][player_1] + neighbours_count[row][col][player_2] < 2 
-					|| neighbours_count[row][col][player_1] + neighbours_count[row][col][player_2] > 3){
-						(*board)[row][col] = dead;
-				}
-				else{ 
-					// cell stays alive
-					cur_alive_cells[alive_cells_num][0] = row;
-					cur_alive_cells[alive_cells_num][1] = col;
-					owner = (*board)[row][col];
-					player_alive_cells_num[owner]++;
-					alive_cells_num++;
-				}
-			}
-			// bringing dead cells to life
-			else{ 
-				if(neighbours_count[row][col][player_1] + neighbours_count[row][col][player_2] == 3){
-					if (neighbours_count[row][col][player_1] > neighbours_count[row][col][player_2]){
-						owner = player_1;
-					}
-					else{
-						owner = player_2;
-					}
-					(*board)[row][col] = owner;
-					player_alive_cells_num[owner]++;
-					cur_alive_cells[alive_cells_num][0] = row;
-					cur_alive_cells[alive_cells_num][1] = col;
-					alive_cells_num++;
-				}
-			}
-		}
-
-		if(print_board){
-			clearScreen();
-			printBoard(*board,stdout);
-			//char* s;
-			//scanf("%s",&s);
-		}
-
-		// player lost
-		if(player_alive_cells_num[0] == 0 || player_alive_cells_num[1] == 1){ 
-			break;
-		}
-
-		// board stabilized, there will be no changes
-		if(memcmp(prev_alive_cells,cur_alive_cells,sizeof(int)*2*BOARD_FULL_SIZE) == 0){
-			break;
-		}
-		else{
-			memcpy(prev_alive_cells,cur_alive_cells,sizeof(int)*2*alive_cells_num);
 		}
 	}
-	// simulation ended, return score
-	// TODO: optimize. instead of calling function make counters above.
-	return count_player_cells((*board),player) - count_player_cells((*board), enemy(player));
+	return new_list_size;
 }
-
-
-//--- CURRENT VERSION CODE----
 
 // this function does full simulation and fills history
 int Simulate(Board* board, Cell player, int turns, Tl* h){
@@ -858,31 +752,7 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 	++simulations_done;
 	for(int turn=0; turn<turns; turn++){
 		// pick cells that need processing
-		cells_to_process_num = 0;
-		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-		// changed cells + level 1 neighbours
-		for(int i=0; i<changed_cells_num; i++){
-			row = changed_cells[i][0];
-			col = changed_cells[i][1];
-
-			if(!cell_added[row][col]){
-				cells_to_process[cells_to_process_num][0] = row;
-				cells_to_process[cells_to_process_num][1] = col;
-				cells_to_process_num++;
-				cell_added[row][col] = true;
-			}
-			
-			for(int n=0; n<8; ++n){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				if(!cell_added[n_row][n_col]){
-					cells_to_process[cells_to_process_num][0] = n_row;
-					cells_to_process[cells_to_process_num][1] = n_col;
-					cells_to_process_num++;
-					cell_added[n_row][n_col] = true;
-				}
-			}
-		}
+		cells_to_process_num = addNeighboursCoords(&changed_cells, changed_cells_num, &cells_to_process);
 		// level 2 neighbours
 		int added_num = 0;
 		for(int i=0; i<cells_to_process_num; ++i){
