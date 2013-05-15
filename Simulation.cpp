@@ -301,27 +301,13 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 			cell_added[row][col] = true;
 		}
 		// level 2 neighbours
-		int added_num = 0;
-		for(int i=0; i<cells_to_process_num; ++i){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			for(int n=0; n<8; ++n){
-				n_row = row + neighbours[n][0];
-				n_col = col + neighbours[n][1];
-				if(!cell_added[n_row][n_col]){
-					cells_to_process[cells_to_process_num+added_num][0] = n_row;
-					cells_to_process[cells_to_process_num+added_num][1] = n_col;
-					++added_num;
-					cell_added[n_row][n_col] = true;
-				}
-			}
-		}
-		cells_to_process_num += added_num;
+		Coords lev2_neighs;
+		int lev2_neighs_num = addNeighboursCoords(&cells_to_process, cells_to_process_num, &lev2_neighs);
 
 		alive_cells_num = 0;
-		for(int i=0; i<cells_to_process_num; ++i){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
+		for(int i=0; i<lev2_neighs_num; ++i){
+			row = lev2_neighs[i][0];
+			col = lev2_neighs[i][1];
 			Cell cell = (*board)[row][col];
 			if(cell != dead){
 				alive_cells[alive_cells_num][0] = row;
@@ -352,13 +338,6 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 				}
 			}
 		}
-		// clean up. removing 2-lvl neighs from processing queue
-		for(int i = cells_to_process_num-1; i >= cells_to_process_num-added_num; --i){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			cell_added[row][col] = false;
-		}
-		cells_to_process_num -= added_num;
 
 		// update cells
 		changed_cells_num = 0;
