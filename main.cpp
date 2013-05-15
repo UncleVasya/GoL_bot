@@ -290,7 +290,7 @@ int main(){
 #ifdef TESTING_MODE
 	stlog = fopen(log_file,"w");
 	setbuf(stlog,NULL); // write to file without delay
-	char* s;
+	char s[20];
 
 	BoardInit();
 	EmptyBoard(board);
@@ -307,7 +307,7 @@ int main(){
 		//scanf("%s",&s);
 	}
 	
-	scanf("%s",&s);
+	scanf("%s",s);
 	printf("\n\n");
 
 	Coords alive_cells;
@@ -315,11 +315,19 @@ int main(){
 	int alive_cells_num = getAliveCells(board,alive_cells);
 	int score = Simulate(&board,player,TURNS_NUM,h);
 	
-	// print history
-	printHistory(h, stdout, player);
+	if (strcmp(s,"p") == 0){
+		// print history
+		printHistory(h, stdout, player);
+	}
+	else{
+		// print last history frame
+		clearScreen();
+		getBoardFromHist(h, 499, board);
+		printBoard(board, stdout);
+	}
 	printf("\n\nscore: %d\n\n", score);
 	
-	scanf("%s",&s);
+	scanf("%s",s);
 	fclose(stlog);
 #endif
 
