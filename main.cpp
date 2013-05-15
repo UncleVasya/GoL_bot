@@ -332,6 +332,7 @@ int main(){
 	
 	scanf("%s",s);
 	fclose(stlog);
+	free(h);
 #endif
 
 	return 0;
