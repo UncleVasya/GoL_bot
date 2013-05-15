@@ -295,24 +295,27 @@ int main(){
 	BoardInit();
 	EmptyBoard(board);
 	printBoard(board,stdout);
+
+	// temp vars
+	Tl* h = (Tl*) malloc(sizeof(Tl));
+	Board brd;
 	
 	Cell player = player_1;
 	// getting moves
 	for(i=0; i<CELLS_TO_PLACE; i++){
 		simulations_done = 0;
 		nextMove(player_1,&board,1,1,NULL,0,CELLS_TO_PLACE-count_player_cells(board,player) < 2? 0 : 1);
+		memcpy(brd, board, sizeof(Board));
+		int score = Simulate(&brd,player,TURNS_NUM,h);
 		clearScreen();
 		printBoard(board,stdout);
-		printf("Simulations done: %d", simulations_done);
+		printf("Simulations done: %d   Score: %d", simulations_done, score);
 		//scanf("%s",&s);
 	}
 	
 	scanf("%s",s);
 	printf("\n\n");
 
-	Coords alive_cells;
-	Tl* h = (Tl*) malloc(sizeof(Tl));
-	int alive_cells_num = getAliveCells(board,alive_cells);
 	int score = Simulate(&board,player,TURNS_NUM,h);
 	
 	if (strcmp(s,"p") == 0){

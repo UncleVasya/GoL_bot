@@ -63,7 +63,7 @@ void printHistory(Tl* h, FILE* stream, Cell player, bool debug){
 		}
 		getBoardFromHist(h,turn,board);
 		getNeighFromHist(h,turn,neigh_count);
-		fprintf(stream, "turn: %d   score: %d", turn, count_player_cells(board,player));
+		fprintf(stream, "turn: %d   score: %d\n\n", turn, count_player_cells(board,player));
 		//printBrdAndNeighCnt(board,neigh_count,player,stream);
 		printBoard(board,stream);
 	}

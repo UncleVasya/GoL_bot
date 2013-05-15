@@ -60,7 +60,7 @@ void printLegendRow(FILE* stream){
 
 void printBoardRow(Board board, int row, FILE* stream){
 	fprintf(stream,"%d  ", row % 10);
-	for(int col=0; col<=BOARD_WIDTH+1; ++col){
+	for(int col=1; col<=BOARD_WIDTH; ++col){
 		fprintf(stream,"%c", char_of_cell(board[row][col]));
 	}
 }
@@ -76,11 +76,11 @@ void printNeighRow(int neigh[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM], 
 
 void printBoard(Board board, FILE* stream){
 	// legend on top
-	fprintf(stream,"   ");
+	fprintf(stream,"\   ");
 	printLegendRow(stream);
 	fprintf(stream,"\n\n");
 	// board
-	for(int row=0; row<=BOARD_HEIGHT+1; ++row){
+	for(int row=1; row<=BOARD_HEIGHT; ++row){
 		printBoardRow(board,row,stream);
 		fprintf(stream,"\n");
 	}
