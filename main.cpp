@@ -309,15 +309,11 @@ int main(){
 	
 	scanf("%s",&s);
 	printf("\n\n");
-	
-	Board board_copy;
-	memcpy(&board_copy,board,sizeof(Board));
 
 	Coords alive_cells;
 	Tl* h = (Tl*) malloc(sizeof(Tl));
 	int alive_cells_num = getAliveCells(board,alive_cells);
 	int score = Simulate(&board,player,TURNS_NUM,h);
-	//int score = Simulate_old(&board_copy,player,TURNS_NUM,true);
 	
 	// print history
 	printHistory(h, stdout, player);
