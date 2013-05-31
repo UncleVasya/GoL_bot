@@ -285,7 +285,7 @@ int main(){
 
 #ifdef TESTING_MODE
 	const char* log_file = "log.txt";
-	stlog = fopen(log_file,"w");
+	FILE* stlog = fopen(log_file,"w");
 	setbuf(stlog,NULL); // write to file without delay
 	char s[20]; // temp var
 
