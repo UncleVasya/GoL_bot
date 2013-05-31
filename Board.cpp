@@ -99,6 +99,28 @@ bool boardDiff(Board board1, Board board2)
 	return false;
 }
 
+bool coordsHas(Coords list, int len, int row, int col){
+	for(int n=0; n<len; ++n){
+		int n_row = list[n][0];
+		int n_col = list[n][1];
+		if( n_row == row && n_col == col){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool coordsDiff(Coords list1, Coords list2, int len){
+	for(int n=0; n<len; ++n){
+		int row = list1[n][0];
+		int col = list1[n][1];
+		if(!coordsHas(list2, len, row, col)){
+			return true;
+		}
+	}
+	return false;
+}
+
 int count_player_cells(Board board, Cell player){
 	int i,k;
 	int count = 0;
