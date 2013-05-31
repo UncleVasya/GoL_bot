@@ -82,14 +82,21 @@ int Simulate(Board* board, Cell player, int turns, Tl* h){
 			memcpy(h->neigh_origin,neighbours_count,sizeof(int)*BOARD_FULL_SIZE*PLAYERS_NUM);
 		}
 		
-		// add alive cells and their neighbours to the processing queue
-		cells_to_process_num = addNeighboursCoords(&cur_alive_cells, alive_cells_num, &cells_to_process);
 		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-		for(int i=0; i<cells_to_process_num; ++i){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			cell_added[row][col] = true;
+		cells_to_process_num = 0;
+		// add alive cells to the processing queue
+		for(int i=0; i<alive_cells_num; ++i){
+			row = cur_alive_cells[i][0];
+			col = cur_alive_cells[i][1];
+			if (!cell_added[row][col]){
+				cells_to_process[cells_to_process_num][0] = row;
+				cells_to_process[cells_to_process_num][1] = col;
+				++cells_to_process_num;
+				cell_added[row][col] = true;
+			}
 		}
+		// add their 1-lev neighbours to the processing queue
+		cells_to_process_num += addNeighboursCoords(&cur_alive_cells, alive_cells_num, 1, &cells_to_process[cells_to_process_num], cell_added, true);
 
 		// updating cells
 		alive_cells_num = 0;
@@ -292,22 +299,29 @@ int Simulate(Board* brd, int move_row, int move_col, Cell player, int turns,
 
 	// simulation
 	for(int turn=0; turn<turns; turn++){
-		// pick cells that need processing
-		cells_to_process_num = addNeighboursCoords(&changed_cells, changed_cells_num, &cells_to_process);
-		memcpy(cell_added,cell_added_init,sizeof(bool)*BOARD_FULL_SIZE);
-		for(int i=0; i<cells_to_process_num; ++i){
-			row = cells_to_process[i][0];
-			col = cells_to_process[i][1];
-			cell_added[row][col] = true;
+		memcpy(cell_added, cell_added_init, sizeof(bool)*BOARD_FULL_SIZE);
+		cells_to_process_num = 0;
+		// add changed cells to the processing queue
+		for(int i=0; i<changed_cells_num; i++){
+			row = changed_cells[i][0];
+			col = changed_cells[i][1];
+			if (!cell_added[row][col]){
+				cells_to_process[cells_to_process_num][0] = row;
+				cells_to_process[cells_to_process_num][1] = col;
+				++cells_to_process_num;
+				cell_added[row][col] = true;
+			}
 		}
-		// level 2 neighbours
-		Coords lev2_neighs;
-		int lev2_neighs_num = addNeighboursCoords(&cells_to_process, cells_to_process_num, &lev2_neighs);
+		// add level 1 neighs to processing queue
+		cells_to_process_num += addNeighboursCoords(&changed_cells, changed_cells_num, 1, &cells_to_process[cells_to_process_num], cell_added, true);
+		// get level 2 neighbours to help count alive cells around cells_to_process
+		int l2_neighs_num = addNeighboursCoords(&changed_cells, changed_cells_num, 2, &cells_to_process[cells_to_process_num], cell_added, false);
 
 		alive_cells_num = 0;
-		for(int i=0; i<lev2_neighs_num; ++i){
-			row = lev2_neighs[i][0];
-			col = lev2_neighs[i][1];
+		const int n = cells_to_process_num + l2_neighs_num;
+		for(int i=0; i<n; ++i){
+			row = cells_to_process[i][0];
+			col = cells_to_process[i][1];
 			Cell cell = (*board)[row][col];
 			if(cell != dead){
 				alive_cells[alive_cells_num][0] = row;
