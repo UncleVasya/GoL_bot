@@ -19,10 +19,14 @@ typedef int Coords[BOARD_FULL_SIZE][2]; // array of coordinates of cells; delete
 void BoardInit();
 void EmptyBoard(Board board);
 void EmptyCellAdded(bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH]);
+
 bool boardDiff(Board board1, Board board2);
+bool coordsHas(Coords list, int len, int row, int col);
+bool coordsDiff(Coords list1, Coords list2, int len);
+
 int count_player_cells(Board board, Cell player);
 int getAliveCells(Board board, Coords alive_cells);
-int addNeighboursCoords(Coords *cells, int cells_num, Coords *new_list = NULL);
+int addNeighboursCoords(Coords *cells, int cells_num, int level, int (*new_list)[2], bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH], bool update_cells_added);
 
 char char_of_cell(Cell cell);
 Cell cell_of_char(char c);

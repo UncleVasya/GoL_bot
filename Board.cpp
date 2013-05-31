@@ -150,39 +150,56 @@ int getAliveCells(Board board, Coords alive_cells){
 	return n;
 }
 
-// takes a list of cells coords and adds to it coords of all neighbours;
-// if new_list != NULL then creates a new list instead of changing original one;
-// returns total cells num (input cells + neighbours)
-int addNeighboursCoords(Coords *cells, int cells_num, Coords *new_list){
-	int neighbours[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
+int addNeighboursCoords(Coords *cells, int cells_num, int level, int (*new_list)[2], 
+					    bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH], 
+						bool update_cells_added)
+{	
+	const int neighbours[24][2] =
+			{
+				// level 1: [0..7]
+				         {-1,-1}, {-1,0}, {-1,1},
+				         {0,-1},          {0,1}, 
+				         {1,-1},  {1,0},  {1,1},
+				// level 2: [8..23]
+				{-2,-2}, {-2,-1}, {-2,0}, {-2,1}, {-2,2},
+				{-1,-2},                          {-1,2},
+				{0,-2},                           {0,2},
+				{1,-2},                           {1,2},
+				{2,-2},  {2,-1},  {2,0},  {2,1},  {2,2},
+			};
 	
-	bool cell_added[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH];
-	EmptyCellAdded(cell_added);
-	
-	int new_list_size = 0;
-	int row=0, col=0, n_row=0, n_col=0;
-	for(int i=0; i<cells_num; i++){
-		row = (*cells)[i][0];
-		col = (*cells)[i][1];
+	int neigh_first, neigh_last;
+	switch (level){
+		case 1: neigh_first = 0; neigh_last = 7;  break;
+		case 2: neigh_first = 8; neigh_last = 23; break;
+	}
 
-		if(!cell_added[row][col]){
-			(*new_list)[new_list_size][0] = row;
-			(*new_list)[new_list_size][1] = col;
-			++new_list_size;
-			cell_added[row][col] = true;
-		}
-			
-		for(int n=0; n<8; ++n){
-			n_row = row + neighbours[n][0];
-			n_col = col + neighbours[n][1];
-			if(!cell_added[n_row][n_col]){
-				(*new_list)[new_list_size][0] = n_row;
-				(*new_list)[new_list_size][1] = n_col;
-				++new_list_size;
-				cell_added[n_row][n_col] = true;
+	int new_list_size = 0;
+	for(int i=0; i<cells_num; i++){
+		int row = (*cells)[i][0];
+		int col = (*cells)[i][1];
+		for(int n=neigh_first; n <= neigh_last; ++n){
+			int n_row = row + neighbours[n][0];
+			int n_col = col + neighbours[n][1];
+			if(n_row > 0 && n_row <= BOARD_HEIGHT   // check if row and col are in range
+				&& n_col > 0 && n_col <= BOARD_WIDTH)
+			{
+				if (!cell_added[n_row][n_col]){
+					new_list[new_list_size][0] = n_row;
+					new_list[new_list_size][1] = n_col;
+					cell_added[n_row][n_col] = true;
+					++new_list_size;
+				}
 			}
+		}
+	}
+	if (!update_cells_added){
+		// revert cell_added changes
+		for (int i = new_list_size-1; i>=0; --i){
+			int row = new_list[i][0];
+			int col = new_list[i][1];
+			cell_added[row][col] = false;
 		}
 	}
 	return new_list_size;
 }
-
