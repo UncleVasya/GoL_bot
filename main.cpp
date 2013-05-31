@@ -16,10 +16,6 @@
 //#define DEBUG_MODE
 #define TESTING_MODE
 
-// log file
-const char* log_file = "log.txt";
-FILE* stlog;
-
 long simulations_done = 0;
 long max_simulations = 100000;
 
@@ -288,9 +284,10 @@ int main(){
 #endif
 
 #ifdef TESTING_MODE
+	const char* log_file = "log.txt";
 	stlog = fopen(log_file,"w");
 	setbuf(stlog,NULL); // write to file without delay
-	char s[20];
+	char s[20]; // temp var
 
 	BoardInit();
 	EmptyBoard(board);
