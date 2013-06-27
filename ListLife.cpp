@@ -6,8 +6,6 @@
 #include "Board.h"
 #include "BoardPrint.h"
 
-#define PRINT_GENERATED
-
 FILE* stream = stdout;
 
 void binToStr(unsigned n, char* str, int strSize = 32){
