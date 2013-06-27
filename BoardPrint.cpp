@@ -76,7 +76,7 @@ void printNeighRow(int neigh[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM], 
 
 void printBoard(Board board, FILE* stream){
 	// legend on top
-	fprintf(stream,"\   ");
+	fprintf(stream,"   ");
 	printLegendRow(stream);
 	fprintf(stream,"\n\n");
 	// board

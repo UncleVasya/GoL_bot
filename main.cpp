@@ -10,11 +10,13 @@
 #include "SimulationHistory.h"
 #include "Player.h"
 #include "utils.h"
+#include "ListLife.h"
 
-#pragma comment(linker, "/STACK:16777216")  // enlarge your stack size!
+#pragma comment(linker, "/STACK:16777216") // enlarge your stack size!
 
 //#define DEBUG_MODE
-#define TESTING_MODE
+//#define TESTING_MODE
+#define LIST_LIFE_TEST
 
 long simulations_done = 0;
 long max_simulations = 100000;
@@ -247,6 +249,7 @@ int main(){
 	//----PRODUCTION CODE-----
 #ifndef DEBUG_MODE 
 #ifndef TESTING_MODE
+#ifndef LIST_LIFE_TEST
     scanf("%c\n", &c);
 	player = cell_of_char(c);
 
@@ -262,6 +265,7 @@ int main(){
 	}
 
 	nextMove(player,&board,1,1,NULL,0,40-count_player_cells(board,player)-1 < 1? 0 : 1);
+#endif
 #endif
 #endif
 
@@ -310,12 +314,13 @@ int main(){
 		//scanf("%s",&s);
 	}
 	
+	printf("\n\nPrint history? y/n: ");
 	scanf("%s",s);
 	printf("\n\n");
 
 	int score = Simulate(&board,player,TURNS_NUM,h);
 	
-	if (strcmp(s,"p") == 0){
+	if (strcmp(s,"y") == 0){
 		// print history
 		printHistory(h, stdout, player);
 	}
@@ -330,6 +335,11 @@ int main(){
 	scanf("%s",s);
 	fclose(stlog);
 	free(h);
+#endif
+
+#ifdef LIST_LIFE_TEST
+	BoardInit();
+	testListLife();
 #endif
 
 	return 0;
