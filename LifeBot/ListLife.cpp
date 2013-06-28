@@ -5,6 +5,7 @@
 #include "ListLife.h"
 #include "Board.h"
 #include "BoardPrint.h"
+#include "Player.h"
 
 FILE* stream = stdout;
 
@@ -28,6 +29,19 @@ void llToBoard(int* ll, Board board){
 	}
 }
 
+void boardToLL(Board board, int* ll){
+	for (int row=BOARD_HEIGHT; row>0; --row){
+        *ll = row;
+        for (int col=BOARD_WIDTH; col>0; --col){
+            if (board[row][col] == player_1){
+                *(++ll) = -col;
+            }
+        }
+        if (*ll < 0) ++ll;
+    }
+    *ll = 0;
+}
+
 void print_3x3(char* str){
 	fprintf(stream, "\n"
 					"%c%c%c \n"
@@ -44,8 +58,9 @@ void testListLife(){
 
     int ll_boards[2][MAX_LL_SIZE] = //{2,-2, 1,-3,-2,-1, 0};
                                     //{4,-5, 3,-4,-3, 0};
-                                    {4,-4, 3,-5,-4,-3, 0};
+                                    //{4,-4, 3,-5,-4,-3, 0};
 		                            //{6,-4, 5,-4,-3, 0};
+                                    {29,-29,-28,-27, 28,-28, 0};
     int *prev = ll_boards[0];
     int *next = ll_boards[1];
     

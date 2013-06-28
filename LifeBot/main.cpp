@@ -21,7 +21,6 @@
 long simulations_done = 0;
 long max_simulations = 100000;
 
-
 bool neighDiff(int grid1[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM], 
 			   int grid2[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM])
 {
@@ -38,6 +37,10 @@ bool neighDiff(int grid1[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM],
 
 int generate_moves(Board board, Cell player, Coords moves){
 	return 0;
+}
+
+void issueOrder(int row, int col){
+    printf("%d %d", row-1, col-1); // -1 because my board starts at 1
 }
 
 // rename this function to minimax and make a new nextMove that only calls minimax and prints best move
@@ -86,76 +89,11 @@ int nextMove(Cell player, Board* board, int prev_row, int prev_col, Tl* h,int pl
 
 	// simulate current state and fill history
 	if(ply == 0){
-	//if(true){
 		prev_score = Simulate(&board_copy,player,TURNS_NUM,prev_h);
-		//Simulate(&board_copy,player,TURNS_NUM,prev_h);
 	}
 	else{
-		//Simulate_old(&board_copy,player,TURNS_NUM,false);
 		prev_score = Simulate(&board_copy,prev_row,prev_col,player,TURNS_NUM,h,prev_h);
-		// max_score = Simulate(&board_copy,prev_row,prev_col,player,TURNS_NUM,h,prev_h);
 		
-		/*Tl* h2 = h+2;
-		h2->turns = 0;
-		for(int i=0; i<TURNS_NUM; ++i){
-			h2->changes_num[i] = 0;
-		}
-		Board brd;
-		memcpy(&brd,board,sizeof(Board));
-		int prev_score2 = Simulate(&brd,player,TURNS_NUM,h2);
-		
-		Board h_brd1; 
-		Board h_brd2;
-		int h_neigh1[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		int h_neigh2[BOARD_FULL_HEIGHT][BOARD_FULL_WIDTH][PLAYERS_NUM];
-		
-		memcpy(h_brd1,prev_h->origin,sizeof(Board));
-		memcpy(h_brd2,h2->origin,sizeof(Board));
-		memcpy(h_neigh1,prev_h->neigh_origin,sizeof(h_neigh1));
-		memcpy(h_neigh2,h2->neigh_origin,sizeof(h_neigh2));
-
-		if(boardDiff(h_brd1,h_brd2) || neighDiff(h_neigh1,h_neigh2)){
-			printf("\n\n Shit happened (origins):\n\n");
-			printBrdAndNeighCnt(h_brd1,h_neigh1,player,stdout);
-			printBrdAndNeighCnt(h_brd2,h_neigh2,player,stdout);
-			char* s;
-			scanf("%s",&s);
-		}
-		
-		for(int t=0; t<TURNS_NUM; ++t){
-			getBoardFromHist(prev_h,t,h_brd1);
-			getBoardFromHist(h2,t,h_brd2);
-			getNeighFromHist(prev_h,t,h_neigh1);
-			getNeighFromHist(h2,t,h_neigh2);
-
-			if(boardDiff(h_brd1,h_brd2) || neighDiff(h_neigh1,h_neigh2)){
-				clearScreen();
-				printf("\n\n Shit happened (turn %d)",t);
-				printf("\n\n Origin:");
-				printBrdAndNeighCnt(prev_h->origin,prev_h->neigh_origin,player,stdout);
-				printf("\n\n Fast simulation:");
-				printBrdAndNeighCnt(h_brd1,h_neigh1,player,stdout);
-				printf("\n\n Normal simulation:");
-				printBrdAndNeighCnt(h_brd2,h_neigh2,player,stdout);
-				printf("\n\n Board difference: \n\n");
-				printBoardDiff(h_brd1,h_brd2,stdout);
-				printf("\n\n Neigh difference: \n\n");
-				printNeighDiff(h_neigh1,h_neigh2,stdout);
-				printf("\n\n boardToStr: \n\n");
-				char* s_brd;
-				boardToStr(prev_h->origin,&s_brd);
-				printf("%s",s_brd);
-				printf("\n\n strToBoard: \n\n");
-				Board bb;
-				strToBoard(s_brd,bb);
-				printBoard(bb,stdout);
-				fprintf(stlog,"%s",s_brd);
-				printf("Board string saved to the log: %s", log_file);
-				char* s;
-				scanf("%s",&s);
-			}
-		}*/
-		//free(h2);
 	}
 	++simulations_done;
 
@@ -184,33 +122,7 @@ int nextMove(Cell player, Board* board, int prev_row, int prev_col, Tl* h,int pl
 				else{	
 					score = Simulate(&board_copy,i,k,player,TURNS_NUM,prev_h,NULL);
 					++simulations_done;
-					/*memcpy(&board_copy,board,sizeof(Board));
-					board_copy[i][k] = player;
-					int score2 = Simulate_old(&board_copy,player,TURNS_NUM,false);
-					if(score != score2){
-						printf("\nbug detected: new_sim score: %d    old_sim score: %d", score, score2);
-						char* s;
-						scanf("%s",&s);
-						printf("simulation_old:");
-						scanf("%s",&s);
-						memcpy(&board_copy,board,sizeof(Board));
-						board_copy[i][k] = player;
-						Simulate_old(&board_copy,player,TURNS_NUM,true);
-						scanf("%s",&s);
-						printf("simulation new:");
-						scanf("%s",&s);
-						memcpy(&board_copy,board,sizeof(Board));
-						board_copy[i][k] = player;
-						Simulate(&board_copy,i,k,player,TURNS_NUM,prev_h,new_h, true);
-						scanf("%s",&s);
-
-					}*/
 				}
-				//clearScreen();
-
-				// unmake move
-				//board[i][k] = dead;
-
 				if(score > max_score){
                 	max_score = score;
                     best_i = i;

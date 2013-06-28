@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ListLife.h"
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 void life_1_7(int *this_gen, int *new_gen)
 {
@@ -49,17 +49,14 @@ void life_1_7(int *this_gen, int *new_gen)
 			y = *next++ + 1;
 		} else {
 			/* move to next row and work out which ones to scan */
-			//if(y>1){
-				if(*prev == y-- && *prev != 0)
-					prev++;
-				if(*this_gen == y && *this_gen != 0)
-					this_gen++;
-				if(*next == y-1 && *next != 0)
-					next++;
-			//}
+			if(*prev == y-- && *prev != 0)
+				prev++;
+			if(*this_gen == y && *this_gen != 0)
+				this_gen++;
+			if(*next == y-1 && *next != 0)
+				next++;
 		}
-		/* write new row co-ordinate */
-		*new_gen = y;
+        *new_gen = y; // write new row co-ordinate
 		for(;;) {
 			/* skip to the leftmost cell */
 			x = *prev;
@@ -119,7 +116,7 @@ void life_1_7(int *this_gen, int *new_gen)
 					}
 				}
 				/* what does this bitmap indicate? */
-				if(state[bitmap] == LIVE)
+				if(state[bitmap] == LIVE && x <= BOARD_WIDTH && y <= BOARD_HEIGHT)
 					*++new_gen = x - 1;
 				else if(bitmap == 000)
 					break;
@@ -132,8 +129,6 @@ void life_1_7(int *this_gen, int *new_gen)
 					print_3x3(str);
 					//scanf("%s",&s);
 				#endif
-
-				//if(x > 0) break; // TODO: use it as a loop condition; 
 			}
 		}
 	}
