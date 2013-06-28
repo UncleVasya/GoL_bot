@@ -42,6 +42,19 @@ void boardToLL(Board board, int* ll){
     *ll = 0;
 }
 
+void printLL(int* ll){
+    do{
+        printf("%3d ", *ll);
+    } while (*ll++);
+}
+
+bool llDiff(int* ll_1, int* ll_2){
+    do{
+        if (*ll_1++ != *ll_2++) return true;
+    } while (*ll_1 || *ll_2);
+    return false;
+}
+
 void print_3x3(char* str){
 	fprintf(stream, "\n"
 					"%c%c%c \n"
@@ -55,6 +68,30 @@ void print_3x3(char* str){
 void testListLife(){
 	Board board;
 	char* s;
+
+    int test_boards[][MAX_LL_SIZE] = {
+                                        {2,-2, 1,-3,-2,-1, 0},
+                                        {4,-5, 3,-4,-3, 0},
+                                        {4,-4, 3,-5,-4,-3, 0},
+		                                {6,-4, 5,-4,-3, 0},
+                                        {29,-29,-28,-27, 28,-28, 0}
+                                    };
+    for (int i=0; i<4; ++i){
+        int* ll_1 = test_boards[i];
+        llToBoard(ll_1, board);
+        int ll_2[MAX_LL_SIZE];
+        boardToLL(board, ll_2);
+        
+        printf("\n\nTest %d:", i);
+        printf("\nll_1: "); printLL(ll_1);
+        printf("\nll_2: "); printLL(ll_2);
+        
+        if (llDiff(ll_1, ll_2)){
+            printf("\n\nShit happened!");
+            scanf("%s", &s);
+        }
+    }
+    scanf("%s", &s);
 
     int ll_boards[2][MAX_LL_SIZE] = //{2,-2, 1,-3,-2,-1, 0};
                                     //{4,-5, 3,-4,-3, 0};
