@@ -215,7 +215,9 @@ int Simulate(Board* board, Cell player, int turns, Tl* h){
 		}
 
 		// board stabilized, there will be no changes
-		if(memcmp(prev_alive_cells,cur_alive_cells,sizeof(int)*2*alive_cells_num) == 0){
+		// TODO: now it's broken. add (|| alive_cells_num == prev_alive_cells_num) to fix it
+		if(false){
+		//if(memcmp(prev_alive_cells,cur_alive_cells,sizeof(int)*2*alive_cells_num) == 0){
 			for(int t=turn+1; t<TURNS_NUM; t++){
 				h->changes_num[t] = 0;
 				h->neigh_changes_num[t] = 0;
