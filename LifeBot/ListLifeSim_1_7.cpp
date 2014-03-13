@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ListLife.h"
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 void life_1_7(int *this_gen, int *new_gen)
 {
@@ -116,7 +116,7 @@ void life_1_7(int *this_gen, int *new_gen)
 					}
 				}
 				/* what does this bitmap indicate? */
-				if(state[bitmap] == LIVE && x <= BOARD_WIDTH && y <= BOARD_HEIGHT)
+				if(state[bitmap] == LIVE && -x < BOARD_WIDTH && y <= BOARD_HEIGHT)
 					*++new_gen = x - 1;
 				else if(bitmap == 000)
 					break;

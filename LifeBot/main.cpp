@@ -15,8 +15,8 @@
 #pragma comment(linker, "/STACK:16777216") // enlarge your stack size!
 
 //#define DEBUG_MODE
-//#define TESTING_MODE
-#define LIST_LIFE_TEST
+#define TESTING_MODE
+//#define LIST_LIFE_TEST
 
 long simulations_done = 0;
 long max_simulations = 100000;
@@ -89,11 +89,12 @@ int nextMove(Cell player, Board* board, int prev_row, int prev_col, Tl* h,int pl
 
 	// simulate current state and fill history
 	if(ply == 0){
-		prev_score = Simulate(&board_copy,player,TURNS_NUM,prev_h);
+		//prev_score = Simulate(&board_copy,player,TURNS_NUM,prev_h);
+        prev_score = SimulateLL(&board_copy,player,TURNS_NUM);
 	}
 	else{
-		prev_score = Simulate(&board_copy,prev_row,prev_col,player,TURNS_NUM,h,prev_h);
-		
+		//prev_score = Simulate(&board_copy,prev_row,prev_col,player,TURNS_NUM,h,prev_h);
+        prev_score = SimulateLL(&board_copy,player,TURNS_NUM);
 	}
 	++simulations_done;
 
@@ -120,7 +121,8 @@ int nextMove(Cell player, Board* board, int prev_row, int prev_col, Tl* h,int pl
 					score = nextMove(player,&board_copy,i,k,prev_h,ply+1,max_ply);
 				}
 				else{	
-					score = Simulate(&board_copy,i,k,player,TURNS_NUM,prev_h,NULL);
+					//score = Simulate(&board_copy,i,k,player,TURNS_NUM,prev_h,NULL);
+                    score = SimulateLL(&board_copy,player,TURNS_NUM);
 					++simulations_done;
 				}
 				if(score > max_score){

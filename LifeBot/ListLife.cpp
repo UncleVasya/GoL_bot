@@ -6,6 +6,9 @@
 #include "Board.h"
 #include "BoardPrint.h"
 #include "Player.h"
+#include "Simulation.h"
+#include "SimulationHistory.h"
+#include "utils.h"
 
 FILE* stream = stdout;
 
@@ -122,4 +125,75 @@ void testListLife(){
     llToBoard(next, board);
 	printBoard(board, stdout);
 	scanf("%s", &s);
+}
+
+//Tl* h;
+
+int SimulateLL(Board *board, Cell player, int turns){
+	char* s; 
+    int ll_boards[2][MAX_LL_SIZE];
+    int* prev = ll_boards[0];
+    int* next = ll_boards[1];
+    
+	//Board board_copy;
+	//memcpy(board_copy, *board, sizeof(Board));
+	//if (!h) h = (Tl*) malloc(sizeof(Tl));
+	//h->turns = 0;
+	//for(int i=0; i<TURNS_NUM; ++i){
+	//	h->changes_num[i] = 0;
+	//}
+	//int my_score = Simulate(&board_copy, player, turns, h);
+	//free(h);
+
+	//clearScreen();
+	//printf("\n\nOriginal board:\n\n");
+    //printBoard(*board, stdout);
+    boardToLL(*board, prev);
+	//printLL(prev);
+	//printf("\n\n");
+    
+    for(int turn=0; turn<turns; ++turn){
+        life_1_7(prev, next);
+        // swap boards  TODO: make swap_pointers function
+        int *tmp = prev;
+        prev = next; 
+        next = tmp;
+
+		/*Board brd1;
+		Board brd2;
+		llToBoard(prev, brd1);
+		getBoardFromHist(h, turn, brd2);
+		if (boardDiff(brd1, brd2)){
+			printf("\n\nturn: %d   LL board:\n", turn);
+			printBoard(brd1, stdout);
+			printLL(prev);
+			printf("\n\n");
+			scanf("%s", &s);
+			printf("\n\nturn: %d   My board:\n", turn);
+			printBoard(brd2, stdout);
+			scanf("%s", &s);
+		}*/
+    }
+
+    llToBoard(prev, *board);
+	int score = count_player_cells(*board, player) - count_player_cells(*board, enemy(player));
+
+	/*if (boardDiff(*board, board_copy)){
+		printf("\n\nShit happened: board diff");
+		printf("\n\nLL board:\n");
+		printBoard(*board, stdout);
+		printLL(prev);
+		printf("\n\n");
+		scanf("%s", &s);
+		printf("\n\nMy board:\n");
+		printBoard(board_copy, stdout);
+		printHistory(h,stdout,player,true);
+		scanf("%s", &s);
+	}
+	if (score != my_score){
+		printf("\nShit happened: score diff");
+		scanf("%s", &s);
+	}*/
+
+    return score;
 }
